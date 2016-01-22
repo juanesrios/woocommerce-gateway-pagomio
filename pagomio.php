@@ -32,6 +32,7 @@ function woocommerce_pagomio_gateway() {
 			$this->title = $this->settings['title'];
 			$this->cliente_id = $this->settings['client_id'];
 			$this->secret_id = $this->settings['secret_id'];
+			$this->sandbox = $this->settings['sandbox'];
 
 			if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=' )) {
                 add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( &$this, 'process_admin_options' ) );
@@ -68,7 +69,12 @@ function woocommerce_pagomio_gateway() {
                     'title' => 'Secret ID',
                     'type' => 'text',
                     'description' => 'Secret ID otorgado por Pagomío'),
-			);
+                'sandbox' => array(
+                            'title' => 'Sandbox',
+                            'type' => 'checkbox',
+                            'label' => 'Sandbox',
+                            'default' => 'no')
+                    );
 		}
 
 		/**
@@ -108,7 +114,11 @@ function woocommerce_pagomio_gateway() {
 			include_once "lib/pagomio/pagomio-sdk-php/pagomio.php";
 			include_once "lib/rmccue/requests/library/Requests.php";
 			Requests::register_autoloader();
-			return new \Pagomio\Pagomio($this->cliente_id,$this->secret_id);
+			$sandbox = false;
+			if($this->sandbox == "yes"){
+				$sandbox = true;
+			}
+			return new \Pagomio\Pagomio($this->cliente_id,$this->secret_id,$sandbox);
 		}
 
 		/**
